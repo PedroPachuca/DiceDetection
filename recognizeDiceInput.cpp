@@ -59,7 +59,7 @@ int main( int argc, char** argv )
   cv::Mat unprocessFrame;
 
   //picture filename
-  String fileName = "dice_1.jpg";
+  String fileName = "dice4.png";
   std::vector<int> allPips;
   for(;;)
   {
