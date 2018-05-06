@@ -15,7 +15,12 @@ int countPips(cv::Mat dice){
 
   // threshold
   // 150, 255
-  cv::threshold(dice, dice, 0, 255, cv::THRESH_BINARY | CV_THRESH_OTSU );
+ 
+  cv::threshold(dice, dice, 150, 255, cv::THRESH_BINARY | CV_THRESH_OTSU );
+
+
+  namedWindow("Processed", true);
+  imshow("Processed", dice);
 
   cv::floodFill(dice, cv::Point(0,0), cv::Scalar(255));
   cv::floodFill(dice, cv::Point(0,149), cv::Scalar(255));
@@ -23,6 +28,9 @@ int countPips(cv::Mat dice){
   cv::floodFill(dice, cv::Point(149,149), cv::Scalar(255));
 
   cv::SimpleBlobDetector::Params params;
+
+  params.filterByInertia = true;
+  params.minInertiaRatio = .5;
 
   std::vector<cv::KeyPoint> keypoints;
 
@@ -55,10 +63,10 @@ std::vector<int>  ret7(std::vector<int> pips ) {
 int main( int argc, char** argv )
 {
   cout << "test" << endl;
-  for(;;) {
   cv::Mat frame;
   cv::Mat unprocessFrame;
   cv::Mat finalFrame;
+  for(;;) {
   //picture filename
   String fileName = "dice_1.jpg";
   std::vector<int> allPips;
@@ -72,39 +80,35 @@ int main( int argc, char** argv )
     namedWindow("orig", CV_WINDOW_AUTOSIZE);
     imshow("orig", frame);
 
-    cvtColor(frame, frame, CV_BGR2GRAY);
     unprocessFrame = frame.clone();
-   
-	
-    namedWindow("Processed", CV_WINDOW_AUTOSIZE); 
-    imshow("Processed", unprocessFrame); 
+    cvtColor(frame, frame, CV_BGR2GRAY);
 
     cv::threshold(frame, frame, 150, 255, cv::THRESH_BINARY | CV_THRESH_OTSU );
 
-   // cv::Canny( frame, frame, 2, 2*2, 3, false );
-    cv::Canny(frame, frame, 4, 4*4, 5, false);
+    cv::Canny( frame, frame, 2, 2*2, 3, false );
 
     std::vector<std::vector<cv::Point> > diceContours;
     std::vector<cv::Vec4i> diceHierarchy;
     cv::findContours( frame.clone(), diceContours, diceHierarchy, CV_RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
+
     for(int i=0; i < diceContours.size(); i++){
 
       double diceContourArea = cv::contourArea(diceContours[i]);
 
      //THIS STRATIFIES BY SIZE BE CAREUL WITH THIS LINEEEEEE
-     // if(diceContourArea > 1000) {
+      if(diceContourArea > 10) {
 
         cv::Rect diceBoundsRect = cv::boundingRect( cv::Mat(diceContours[i]) );
 
         cv::Mat diceROI = unprocessFrame(diceBoundsRect);
 
 	int numberOfPips = countPips(diceROI);
-	
+	if(numberOfPips > 0) {
 	allPips.push_back(numberOfPips);
- 	
+	}
 	cv::imshow("frame", unprocessFrame);
 
-  //    }
+     }
     
     }
 
