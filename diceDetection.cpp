@@ -49,7 +49,7 @@ std::vector<int>  ret7(std::vector<int> pips ) {
    for(int i = 0; i < pips.size(); i++) {
 	for(int x = 0; x < pips.size(); x++) {
 		if(x != i) {
-			if(x + i == 7) {
+			if(pips.at(x)+ pips.at(i) == 7) {
 				sevens.push_back(x);
 				sevens.push_back(i);
 				return sevens;
@@ -105,22 +105,27 @@ int main( int argc, char** argv )
 	int numberOfPips = countPips(diceROI);
 	if(numberOfPips > 0) {
 	allPips.push_back(numberOfPips);
+	
 	}
-	cv::imshow("frame", unprocessFrame);
+//	cv::imshow("frame", unprocessFrame);
 
      }
     
     }
+	
+   // cout << allPips.size();
 
     std::vector<int> sevens = ret7(allPips);
+   // cout << sevens.size();
     for(int i = 0; i<sevens.size(); i++) {
 	finalFrame = unprocessFrame.clone();
-
+//SEVEN IS INT FIX THE BOTTOM LINE
 	cv::Rect diceBoundsRect = cv::boundingRect( cv::Mat(diceContours[sevens.at(i)]) );
 
         cv::Mat diceROI = unprocessFrame(diceBoundsRect);
 
 	int numberOfPips = countPips(diceROI);
+	cout << numberOfPips;
 
 	std::ostringstream diceText;
    	diceText << "val: " << numberOfPips;
@@ -131,7 +136,7 @@ int main( int argc, char** argv )
    	cv::rectangle( unprocessFrame, diceBoundsRect.tl(), diceBoundsRect.br(), color, 2,8, 0 );
 
 	namedWindow("Final", CV_WINDOW_AUTOSIZE);
-	imshow("FINAL", finalFrame);
+	imshow("FINAL", unprocessFrame);
     }
 
 /*
