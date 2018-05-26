@@ -38,24 +38,26 @@ int countPips(cv::Mat dice){
 
   blobDetector->detect(dice, keypoints);
 
-
+ // cout << keypoints.size();
   return keypoints.size();
 }
 
 
 std::vector<int>  ret7(std::vector<int> pips ) {
+  std::vector<int> pipsModded = pips;
   std::vector<int> sevens;
 
-  for(int i = 0; i < pips.size(); i++) {
-    for(int x = 0; x < pips.size(); x++) {
-      if(x != i) {
-        if(pips.at(x)+ pips.at(i) == 7) {
-          sevens.push_back(x);
-          sevens.push_back(i);
-          return sevens;
-        }
-      }
-    }
+
+  for(int i = 0; i < pips.size()-1; i++) {
+	  for(int x = i + 1; x < pips.size(); x++) {
+		if(pips.at(i) + pips.at(x) == 7){
+			cout << pips.at(i);
+			cout << pips.at(x);
+			sevens.push_back(i);
+			sevens.push_back(x);
+			return sevens;
+		}
+  	}
   }
   return sevens;
 }
@@ -96,7 +98,7 @@ int main( int argc, char** argv )
       double diceContourArea = cv::contourArea(diceContours[i]);
 
       //THIS STRATIFIES BY SIZE BE CAREUL WITH THIS LINEEEEEE
-      if(diceContourArea > 10) {
+      if(diceContourArea > 100) {
 
         cv::Rect diceBoundsRect = cv::boundingRect( cv::Mat(diceContours[i]) );
 
@@ -106,15 +108,31 @@ int main( int argc, char** argv )
         if(numberOfPips > 0) {
           allPips.push_back(numberOfPips);
         }
-        //	cv::imshow("frame", unprocessFrame);
+        	cv::imshow("frame", unprocessFrame);
       }
     }
 
-    // cout << allPips.size();
-
     std::vector<int> sevens = ret7(allPips);
-    // cout << sevens.size();
-    for(int i = 0; i<sevens.size(); i++) {
+    if(!sevens.empty()) {
+    for(int i = 0; i < sevens.size(); i++){
+	    finalFrame = unprocessFrame.clone();
+	    cv::Rect diceBoundsRect = cv::boundingRect(cv::Mat(diceContours[sevens.at(i)]));
+	    int numberOfPips = allPips.at(sevens.at(i));
+	    cout << numberOfPips;
+	    std::ostringstream diceText;
+	    diceText << numberOfPips;
+	    // draw value
+	    cv::putText(unprocessFrame, diceText.str(),cv::Point(diceBoundsRect.x, diceBoundsRect.y + diceBoundsRect.height - 50 ),cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar::all(255), 1, 8);
+	    // draw rect
+	   cv::Scalar color = cv::Scalar( 0, 153, 255 );
+	 //  cv::rectangle( unprocessFrame, diceBoundsRect.br(), diceBoundsRect.tl(), color, 2,8, 0 );
+
+	   cv::rectangle( unprocessFrame, diceBoundsRect.tl(), diceBoundsRect.br(), color, 2,8, 0 );
+	   namedWindow("Final", CV_WINDOW_AUTOSIZE);
+	   imshow("FINAL", unprocessFrame);
+    }
+
+   /* for(int i = 0; i<sevens.size(); i++) {
       finalFrame = unprocessFrame.clone();
       //SEVEN IS INT FIX THE BOTTOM LINE
       cv::Rect diceBoundsRect = cv::boundingRect( cv::Mat(diceContours[sevens.at(i)]) );
@@ -122,7 +140,6 @@ int main( int argc, char** argv )
       cv::Mat diceROI = unprocessFrame(diceBoundsRect);
 
       int numberOfPips = countPips(diceROI);
-      cout << numberOfPips;
 
       std::ostringstream diceText;
       diceText << "val: " << numberOfPips;
@@ -134,7 +151,7 @@ int main( int argc, char** argv )
 
       namedWindow("Final", CV_WINDOW_AUTOSIZE);
       imshow("FINAL", unprocessFrame);
-    }
+    }*/
 
     /*
     for(int i = 0; i < sevens.size(); i++) {
@@ -167,6 +184,11 @@ int main( int argc, char** argv )
 
 if(cv::waitKey(30) >- 0) {
   break;
+}
+
+}
+else {
+	cout << "empty";
 }
 }
 }
