@@ -51,8 +51,8 @@ std::vector<int>  ret7(std::vector<int> pips ) {
   for(int i = 0; i < pips.size()-1; i++) {
 	  for(int x = i + 1; x < pips.size(); x++) {
 		if(pips.at(i) + pips.at(x) == 7){
-			cout << pips.at(i);
-			cout << pips.at(x);
+		//	cout << i<< "i" << endl;
+		//	cout << x<< "x" << endl;
 			sevens.push_back(i);
 			sevens.push_back(x);
 			return sevens;
@@ -90,9 +90,22 @@ int main( int argc, char** argv )
     cv::Canny( frame, frame, 2, 2*2, 3, false );
 
     std::vector<std::vector<cv::Point> > diceContours;
+    // std::vector<std::vector<cv::Point> > actualDiceContours;
     std::vector<cv::Vec4i> diceHierarchy;
-    cv::findContours( frame.clone(), diceContours, diceHierarchy, CV_RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
+   // cv::findContours( frame.clone(), actualDiceContours, diceHierarchy, CV_RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
+ cv::findContours( frame.clone(), diceContours, diceHierarchy, CV_RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE );
 
+
+   /* for(int i = 0; i < actualDiceContours.size(); i++){ 
+	    double diceContourArea = cv::contourArea(actualDiceContours[i]);
+
+      //THIS STRATIFIES BY SIZE BE CAREUL WITH THIS LINEEEEEE
+      if(diceContourArea > 100) {
+	      diceContours.push_back(actualDiceContours.at(i));
+      }
+
+    }*/
+// cout << diceContours.size();
     for(int i=0; i < diceContours.size(); i++){
 
       double diceContourArea = cv::contourArea(diceContours[i]);
@@ -107,18 +120,32 @@ int main( int argc, char** argv )
         int numberOfPips = countPips(diceROI);
         if(numberOfPips > 0) {
           allPips.push_back(numberOfPips);
+
         }
-        	cv::imshow("frame", unprocessFrame);
+	 /*  std::ostringstream diceText;
+	    diceText << i ;
+	    // draw value
+	    cv::putText(unprocessFrame, diceText.str(),cv::Point(diceBoundsRect.x, diceBoundsRect.y + diceBoundsRect.height + 20 ),cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cv::Scalar::all(255), 1, 8);
+	    // draw rect
+	   cv::Scalar color = cv::Scalar( 0, 153, 255 );
+	 //  cv::rectangle( unprocessFrame, diceBoundsRect.br(), diceBoundsRect.tl(), color, 2,8, 0 );
+
+	   cv::rectangle( unprocessFrame, diceBoundsRect.tl(), diceBoundsRect.br(), color, 2,8, 0 );
+
+        	cv::imshow("frame", unprocessFrame);*/
       }
     }
+
 
     std::vector<int> sevens = ret7(allPips);
     if(!sevens.empty()) {
     for(int i = 0; i < sevens.size(); i++){
 	    finalFrame = unprocessFrame.clone();
-	    cv::Rect diceBoundsRect = cv::boundingRect(cv::Mat(diceContours[sevens.at(i)]));
+	     cv::Rect diceBoundsRect = cv::boundingRect(cv::Mat(diceContours[54]));
+
+	  //  cv::Rect diceBoundsRect = cv::boundingRect(cv::Mat(diceContours[sevens.at(i)]));
 	    int numberOfPips = allPips.at(sevens.at(i));
-	    cout << numberOfPips;
+	    
 	    std::ostringstream diceText;
 	    diceText << numberOfPips;
 	    // draw value
